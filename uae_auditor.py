@@ -96,14 +96,14 @@ def run_ai_legal_analysis(text):
         completion = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
             messages=[
-                {"role": "system", "content": "You are a precise UAE legal compliance expert."}
+                {"role": "system", "content": "You are a precise UAE legal compliance expert."},
                 {"role": "user", "content": prompt}
             ],
             temperature=0.2, 
             max_tokens=500
         )
 
-        return compeletion.choices[0].message.content
+        return completion.choices[0].message.content
 
     except Exception as e:
         return f"AI Analysis Error: {str(e)}"

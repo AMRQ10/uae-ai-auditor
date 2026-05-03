@@ -31,7 +31,7 @@ if st.button("Run Compliance Audit"):
                 st.subheader("AI Legal opinion")
                 st.info(ai_report)
             except Exception as e:
-                st.error("AI analysis unavailable. Error: {e}")
+                st.error(f"AI analysis unavailable. Error: {e}")
 
         if score > 70:
             st.error("High risk detected (71–100).")
