@@ -2,21 +2,15 @@ import os
 
 import streamlit as st
 
+st.set_page_config(page_title="UAE AI Auditor 2026", page_icon="⚖️")
+
 from uae_auditor import (
     EXEMPT_KEYWORDS,
     HIGH_RISK_KEYWORDS,
     calculate_risk_score,
     find_matches,
+    run_ai_legal_analysis,
 )
-
-with st.sidebar:
-    st.header("Settings")
-    user_api_key = st.text_input("Anthropic API Key", type="password")
-    if user_api_key:
-        os.environ["ANTHROPIC_API_KEY"] = user_api_key
-        st.success("API key loaded!")
-        
-st.set_page_config(page_title="UAE AI Auditor 2026", page_icon="⚖️")
 
 st.title("⚖️ UAE AI Act 2026 Auditor")
 st.subheader("High-risk keyword scan (simplified web view)")
@@ -30,6 +24,14 @@ if st.button("Run Compliance Audit"):
         score = calculate_risk_score(high_risk, exempt, None)
 
         st.metric(label="Risk Score", value=f"{score}/100")
+
+        with st.spinner("Groq is performing a deep legal analysis..."):
+            try:
+                ai_report = run_ai_legal_analysis(instructions)
+                st.subheader("AI Legal opinion")
+                st.info(ai_report)
+            except Exception as e:
+                st.error("AI analysis unavailable. Error: {e}")
 
         if score > 70:
             st.error("High risk detected (71–100).")
@@ -51,3 +53,6 @@ if st.button("Run Compliance Audit"):
                 st.markdown(f"- {kw}")
     else:
         st.info("Please enter instructions to audit.")
+
+   
+

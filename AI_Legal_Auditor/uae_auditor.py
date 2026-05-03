@@ -19,6 +19,8 @@ from rich.panel import Panel
 from rich.table import Table
 from rich.text import Text
 
+from groq import Groq
+import streamlit as st
 
 # Simple example keyword list from UAE AI Act 2026 style categories.
 HIGH_RISK_KEYWORDS: List[str] = [
@@ -68,6 +70,45 @@ ANTHROPIC_AUDITOR_PROMPT = (
     "Analyze the context and determine if this is a Tier 3/4 violation or an exempt administrative use-case. "
     'Return a JSON with "verdict" and "legal_reasoning".'
 )
+
+def run_ai_legal_analysis(text):
+    """
+    Uses Groq to perform a contextual risk assessment based on the UAE AI Act 2026.
+    """
+    # 1. Initialise the Groq client using my secret key
+    try:
+        client = Groq(api_key=st.secrets["GROQ_API_KEY"])
+
+        # 2. Craft the legal engineering import
+        prompt = f"""
+        You are a specialised Legal Engineer expert in the UAE AI Act 2026. 
+        Analyze the following system instructions for a new AI Agent:
+
+        "{text}"
+
+        Task:
+        1. Categorise the risk: Is this High-Risk' (Article 14), 'Prohibited', or 'Low-Risk'?
+        2. Identify specific legal concerns: Look for biometric data behavioral manipulation, critical infrastructure.
+        3. Provide a 3-sentence concise summary: (Risk level, Primary Legal Basis, and a Mitigation Recommendation).
+        """
+
+        #3. Request the completion form the Llama 3.3 model
+        completion = client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {"role": "system", "content": "You are a precise UAE legal compliance expert."}
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.2, 
+            max_tokens=500
+        )
+
+        return compeletion.choices[0].message.content
+
+    except Exception as e:
+        return f"AI Analysis Error: {str(e)}"
+
+
 
 
 def normalize_text(text: str) -> str:
