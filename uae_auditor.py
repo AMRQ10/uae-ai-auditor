@@ -21,7 +21,7 @@ from rich.text import Text
 
 from groq import Groq
 import streamlit as st
-from fpdf2 import FPDF
+from fpdf import FPDF
 
 # Simple example keyword list from UAE AI Act 2026 style categories.
 HIGH_RISK_KEYWORDS: List[str] = [
