@@ -10,6 +10,7 @@ from uae_auditor import (
     calculate_risk_score,
     find_matches,
     run_ai_legal_analysis,
+    ai_report_text,
     generate_pdf_report,
 )
 
@@ -29,6 +30,10 @@ if st.button("Run Compliance Audit"):
         with st.spinner("Groq is performing a deep legal analysis..."):
             try:
                 ai_report = run_ai_legal_analysis(instructions)
+
+                score = calculate_risk_score(high_risk, exempt, ai_report)
+
+                st.metric(label="Risk Score", value=f"{score}/100")
                 st.subheader("AI Legal opinion")
                 st.info(ai_report)
             except Exception as e:
