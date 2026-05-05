@@ -10,6 +10,7 @@ from uae_auditor import (
     calculate_risk_score,
     find_matches,
     run_ai_legal_analysis,
+    generate_pdf_report,
 )
 
 st.title("⚖️ UAE AI Act 2026 Auditor")
@@ -33,8 +34,11 @@ if st.button("Run Compliance Audit"):
             except Exception as e:
                 st.error(f"AI analysis unavailable. Error: {e}")
 
-        if score > 70:
-            st.error("High risk detected (71–100).")
+        # If AI finds 'High-Risk' or 'Prohibited' in its text, treated seriously
+        ai_warning = "high-risk" in ai_report.lower() or "prohibited" in ai_report.lower()        
+
+        if score > 70 or ai_warning:
+            st.error("High risk or Prohibited use detected (71–100).")
         elif score > 40:
             st.warning("Contextual review suggested (41–70).")
         else:
@@ -54,5 +58,14 @@ if st.button("Run Compliance Audit"):
     else:
         st.info("Please enter instructions to audit.")
 
+    st.markdown("---")
+    report_bytes = generate_pdf_report(score, ai_report, high_risk)
+    
+    st.download_button(
+        label = "Download Audit Report (PDF)",
+        data=report_bytes,
+        file_name="UAE_AI_Audit_Report.pdf",
+        mime="application/pdf",
+    )
    
 
