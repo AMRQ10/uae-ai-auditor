@@ -10,7 +10,6 @@ from uae_auditor import (
     calculate_risk_score,
     find_matches,
     run_ai_legal_analysis,
-    ai_report_text,
     generate_pdf_report,
 )
 
