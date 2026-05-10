@@ -29,7 +29,7 @@ if st.button("Run Compliance Audit"):
 
                 score = calculate_risk_score(high_risk, exempt, ai_report)
 
-                st.metric(label="Risk Score", value=f"{score}/100")
+                st.metric(label="Risk Score", value=f"{score}/100", delta="High Risk" if score > 70 else "Low Risk")
                 st.subheader("AI Legal opinion")
                 st.info(ai_report)
 
