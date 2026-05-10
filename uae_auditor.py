@@ -169,16 +169,19 @@ def calculate_risk_score(
     """
     Compute a 0–100 risk score based on keywords and AI sentiment.
     """
-    report_lower = ai_report_text.lower()
+    base_score = 0
+    report_lower = str(ai_report_text).lower() if ai_report_text else ""
     
     if "prohibited" in report_lower or "unacceptable" in report_lower:
         base_score = 90
     elif "high-risk" in report_lower or "article 14" in report_lower:
-            score = 70
+        score = 70
     elif "caution" in report_lower or "contextual" in report_lower:
-            score = 40
-    else:
+        score = 40
+    elif report_lower:
         base_score = 10
+    else:
+        base_score = 0
 
     keyword_bonus = len(high_risk_matches) * 5
 
