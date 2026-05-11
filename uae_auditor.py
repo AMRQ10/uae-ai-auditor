@@ -163,7 +163,7 @@ def get_classification(
     )
 
 
-def calculate_risk_score(high_risk_matches, ai_report_text):
+def calculate_risk_score(ai_report_text):
     """
     Extracts the score directly from the AI's response using Regex.
     """
