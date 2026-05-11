@@ -71,7 +71,7 @@ EXEMPT_KEYWORDS: List[str] = [
 
 DB_NAME = "audit_logs.db"
 
-ANTHROPIC_AUDITOR_PROMPT = (
+GROQ_AUDITOR_PROMPT = (
     "Act as a UAE AI Act Auditor. The following instructions triggered a high-risk keyword. "
     "Analyze the context and determine if this is a Tier 3/4 violation or an exempt administrative use-case. "
     'Return a JSON with "verdict" and "legal_reasoning".'
@@ -96,6 +96,8 @@ def run_ai_legal_analysis(text):
         1. Categorise the risk: Is this High-Risk' (Article 14), 'Prohibited', or 'Low-Risk'?
         2. Identify specific legal concerns: Look for biometric data behavioral manipulation, critical infrastructure.
         3. Provide a 3-sentence concise summary: (Risk level, Primary Legal Basis, and a Mitigation Recommendation).
+
+        At the end of your report, you must provide a final numeric score on a new line in this exact format: FINAL_SCORE: X/100 where X is based on your legal assessment of the UAE AI Act.
         """
 
         #3. Request the completion form the Llama 3.3 model
@@ -161,32 +163,19 @@ def get_classification(
     )
 
 
-def calculate_risk_score(
-    high_risk_matches: List[str],
-    exempt_matches: List[str],
-    ai_report_text: str = ""
-) -> int:
+def calculate_risk_score(high_risk_matches, ai_report_text):
     """
-    Compute a 0–100 risk score based on keywords and AI sentiment.
+    Extracts the score directly from the AI's response using Regex.
     """
-    report_lower = ai_report_text.lower()
-    
-    if "prohibited" in report_lower or "unacceptable" in report_lower:
-        base_score = 90
-    elif "high-risk" in report_lower or "article 14" in report_lower:
-        base_score = 70
-    elif "caution" in report_lower or "contextual" in report_lower:
-        base_score = 40
-    else:
-        base_score = 10
+    match = re.search(r"FINAL_SCORE:\s*(\d+)", ai_report_text)
 
-    keyword_bonus = len(high_risk_matches) * 5
+    if match:
+        score = int(match.group(1))
+        return max(0, min(100, score))
 
-    exemption_discount = len(exempt_matches) * 10 if base_score < 90 else 0
-
-    final_score = base_score + keyword_bonus - exemption_discount
-
-    return max(0, min(100, final_score))
+    if "high-risk" in ai_report_text.lower():
+        return 80
+    return 10
 
 
 def risk_score_theme(score: int) -> str:
